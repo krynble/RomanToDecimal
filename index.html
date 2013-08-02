@@ -5,11 +5,75 @@
         <meta name="description" content="Roman to Decimal calculator">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Omar's Roman to Decimal Calculator</title>
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="author" href="humans.txt">
+        <link rel="stylesheet" href="bootstrap.min.css">
     </head>
+    <style>
+    #container { width: 800px; margin: 50px auto 0; }
+    #output, #loading { display: none; }
+    </style>
     <body>
-        <h1>Roman to Decimal calculator</h1>
-        <script src="js/main.js"></script>
+    	
+    	<div id="container">
+	    	<div class="row">
+	        	<h1 class="text-center">Roman to Decimal calculator</h1>
+	        	<div>
+					<form class="form-horizontal" id="romanForm">
+						<div class="form-group">
+							<label for="number" class="col-lg-4 control-label">Roman numeral</label>
+							<div class="col-lg-6">
+								<input type="text" class="form-control" name="number" id="inputRoman" placeholder="MCCCXXXVII">
+								<br>
+								<button type="submit" class="btn btn-default">Submit</button>
+							</div>
+						</div>
+					</form>
+	        	</div>
+	        	<div id="output" class="text-center">
+	        		<strong>Computed value is</strong> <span id="spanResult"></span>
+	        	</div>
+	        	<div id="loading" class="text-center">
+	        		Calculating...
+	        	</div>
+
+	    	</div>
+    	</div>
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    	<script src="bootstrap.min.js"></script>
+		<script>
+		$(function() {
+			var $output = $('#output'), $loading = $('#loading'), $result = $('#spanResult');
+			$('#romanForm').on('submit', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				$loading.show();
+				$output.show();
+
+				var data = $(this).serialize();
+				$.ajax('/calculate', {
+					data: data,
+					success: function(returned_val) {
+						if(returned_val.status === 'OK') {
+							$loading.hide();
+							$output.show();
+							$result.html(returned_val.result);
+						}
+						else {
+							alert('Problems with calculation! Oh noes! :(');
+							$loading.hide();
+						}
+					},
+					type: 'GET',
+					error: function() {
+						$loading.hide();
+						alert('Something wrong happened :( Maybe you typed an incorrect value?');
+					}
+				});
+
+				return false;
+			})
+		});
+		</script>
+
     </body>
 </html>

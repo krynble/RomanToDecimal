@@ -75,9 +75,9 @@ function romanToDecimal(romanString) {
 var http = require("http"), url = require("url"), fs = require('fs');
 
 http.createServer(function(request, response) {
-	var called_url = url.parse(request.url);
+	var called_url = url.parse(request.url, true);
 	
-	if(called_url.pathname == '/') {
+	if(called_url.pathname === '/' || called_url.pathname === '/index.html') {
 		fs.readFile('./index.html', function(err, contents) {
 			if(err) {
 				response.writeHead(500, {"Content-Type": "text/plain"});
@@ -89,10 +89,31 @@ http.createServer(function(request, response) {
 			response.write(contents);
 			response.end();
 		});
-	} else if(called_url.pathname == 'calculate') {
-		response.writeHead(200, {"Content-Type": "text/plain"});
-		response.write("Hello World");
+	} else if(called_url.pathname === '/calculate') {
+		if(typeof(called_url.query.number) !== 'undefined') {
+			var retorno = romanToDecimal(called_url.query.number);
+			if(retorno >= 0) {
+				response.writeHead(200, {"Content-Type": "text/json"});
+				response.write('{"status": "OK", "result": ' + retorno + '}');
+				response.end();
+				return;
+			}
+		}
+		response.writeHead(500, {"Content-Type": "text/json"});
+		response.write('{"status": "error"}');
 		response.end();
+	} else if (called_url.pathname === '/bootstrap.min.css' || called_url.pathname === '/bootstrap.min.js') {
+		fs.readFile('.' + called_url.pathname, function(err, contents) {
+			if(err) {
+				response.writeHead(500, {"Content-Type": "text/css"});
+				response.write("");
+				response.end();
+				return;
+			}
+			response.writeHead(200, {"Content-Type": "text/css"});
+			response.write(contents);
+			response.end();
+		});
 	}
 	else {
 		response.writeHead(404, {"Content-Type": "text/plain"});
