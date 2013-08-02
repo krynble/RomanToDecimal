@@ -72,12 +72,35 @@ function romanToDecimal(romanString) {
 	return output;
 }
 
-console.log('Output for iv: ' + romanToDecimal('iv'));
-console.log('Output for cm: ' + romanToDecimal('cm'));
-console.log('Output for mc: ' + romanToDecimal('mc'));
-console.log('Output for xlim: ' + romanToDecimal('xlim'));
-console.log('Output for mcvi: ' + romanToDecimal('mcvi'));
-console.log('Output for abcd: ' + romanToDecimal('abcd'));
-console.log('Output for MCCCXXXVII: ' + romanToDecimal('MCCCXXXVII'));
+var http = require("http"), url = require("url"), fs = require('fs');
+
+http.createServer(function(request, response) {
+	var called_url = url.parse(request.url);
+	
+	if(called_url.pathname == '/') {
+		fs.readFile('./index.html', function(err, contents) {
+			if(err) {
+				response.writeHead(500, {"Content-Type": "text/plain"});
+				response.write("Error loading index template file.");
+				response.end();
+				return;
+			}
+			response.writeHead(200, {"Content-Type": "text/html"});
+			response.write(contents);
+			response.end();
+		});
+	} else if(called_url.pathname == 'calculate') {
+		response.writeHead(200, {"Content-Type": "text/plain"});
+		response.write("Hello World");
+		response.end();
+	}
+	else {
+		response.writeHead(404, {"Content-Type": "text/plain"});
+		response.write("Not found.");
+		response.end();
+	}
+
+}).listen(8080);
+
 
 
